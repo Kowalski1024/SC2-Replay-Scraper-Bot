@@ -5,11 +5,11 @@ from sc2.ids.upgrade_id import UpgradeId
 from sc2.bot_ai import BotAI
 from sc2.unit import Unit
 from sc2.observer_ai import ObserverAI
-from sc2.cache import property_cache_once_per_frame
 
 from PlayersData.Races.protoss import AllianceProtoss, EnemyProtoss
 from constants import building_abilities, train_abilities, abilities_set
 from PlayersData.constants import unit_label, structure_label
+from PlayersData.cache import property_cache_once_per_frame
 
 
 class PlayersData:
@@ -56,6 +56,10 @@ class PlayersData:
     @property_cache_once_per_frame
     def new_train_orders(self) -> dict:
         return {x: count for x, count in self.new_orders.items() if x in abilities_set}
+
+    @property
+    def state_vector(self):
+        pass
 
     @property
     def action_vector(self):
