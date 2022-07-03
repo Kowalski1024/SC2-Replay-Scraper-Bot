@@ -4,7 +4,7 @@ from collections import Counter
 from sc2.ids.upgrade_id import UpgradeId
 from sc2.bot_ai import BotAI
 from sc2.unit import Unit
-from sc2.observer_ai import ObserverAI
+from observer_ai import ObserverAI
 from sc2.position import Point2
 from sc2.ids.unit_typeid import UnitTypeId
 
