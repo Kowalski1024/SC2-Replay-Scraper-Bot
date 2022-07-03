@@ -1,7 +1,7 @@
 import enum
 
 
-class Labels(enum.Enum):
+class Labels(enum.IntEnum):
     # 0 - 15 claimed for state
 
     # Units 16 - 35

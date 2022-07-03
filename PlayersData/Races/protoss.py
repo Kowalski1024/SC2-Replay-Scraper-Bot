@@ -1,30 +1,31 @@
-from sc2.bot_ai import BotAI
+from typing import Union
+
+from sc2.bot_ai_internal import BotAIInternal
 from sc2.ids.upgrade_id import UpgradeId
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.position import Point2
 
-from .interface import EnemyData, AllianceData
+from .base import EnemyData, AllianceData
 from PlayersData.unit import Unit
 from PlayersData.utils import get_label, correct_type, townhall_is_expansion
-from PlayersData.constants import available_labels
+from ..labels import alias, Labels
 
 
 class AllianceProtoss(AllianceData):
-    def __init__(self, bot: BotAI):
+    def __init__(self, bot):
         super().__init__(bot)
 
     def update(self):
-        self.structures = self._bot.structures
         for unit in self._bot.units:
             tag = unit.tag
             if tag in self.units:
                 self.units[tag].update(unit)
             else:
                 unit_type = correct_type(unit)
-                if unit_type in available_labels:
+                if unit_type in alias:
                     self._unit_types[unit_type].add(tag)
                     self.units[tag] = Unit(unit)
-                    self._units_vector[get_label(unit_type)] += 1
+                    self._vector_dict[get_label(unit_type)] += 1
 
     # TODO: self.state.upgrades
     # def on_upgrade_complete(self, upgrade: UpgradeId):
@@ -63,39 +64,38 @@ class AllianceProtoss(AllianceData):
     #         self._upgrades_vector[get_label(upgrade)] = 1
 
     def on_unit_destroyed(self, tag: int):
-        unit_type = correct_type(self.units[tag])
-        self._units_vector[get_label(unit_type)] -= 1
+        unit_type = correct_type(self._bot._units_previous_map[tag])
+        self._vector_dict[get_label(unit_type)] -= 1
         self.units.pop(tag)
         self._unit_types[unit_type].remove(tag)
 
 
 class EnemyProtoss(EnemyData):
-    def __init__(self, bot: BotAI):
+    def __init__(self, bot):
         super().__init__(bot)
 
     def update(self):
-        self.structures = self._bot.enemy_structures
-        for unit in self._bot.enemy_units:
+        for unit in self.visible_units:
             tag = unit.tag
             if tag in self._units:
                 self._units[tag].update(unit)
                 self._units.refresh(tag)
             else:
                 unit_type = correct_type(unit)
-                if unit_type in available_labels:
+                if unit_type in alias:
                     self._unit_types[unit_type].add(tag)
                     self._units[tag] = Unit(unit)
                     if tag not in self._units_tags:
-                        self._units_vector[get_label(unit_type)] += 1
-                        if unit_type == UnitTypeId.ARCHON:
-                            if self._units_vector[get_label(UnitTypeId.HIGHTEMPLAR)] >= 2:
-                                self._units_vector[get_label(UnitTypeId.HIGHTEMPLAR)] -= 2
-                            elif self._units_vector[get_label(UnitTypeId.DARKTEMPLAR)] >= 2:
-                                self._units_vector[get_label(UnitTypeId.DARKTEMPLAR)] -= 2
+                        self._vector_dict[get_label(unit_type)] += 1
+                        # if unit_type == UnitTypeId.ARCHON:
+                        #     if self._vector_dict[Labels.HIGHTEMPLAR] >= 2:
+                        #         self._vector_dict[Labels.HIGHTEMPLAR] -= 2
+                        #     elif self._vector_dict[Labels.DARKTEMPLAR] >= 2:
+                        #         self._vector_dict[Labels.DARKTEMPLAR] -= 2
                     self._units_tags.add(tag)
 
     def on_unit_destroyed(self, tag: int):
-        unit_type = correct_type(self._units[tag])
-        self._units_vector[get_label(unit_type)] -= 1
+        unit_type = correct_type(self._bot._units_previous_map[tag])
+        self._vector_dict[get_label(unit_type)] -= 1
         self._units.pop(tag)
         self._unit_types[unit_type].remove(tag)
