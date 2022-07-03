@@ -5,10 +5,10 @@ from sc2.position import Point2
 from sc2.ids.upgrade_id import UpgradeId
 from sc2.ids.unit_typeid import UnitTypeId
 
-from PlayersData.labels import alias, correct_alias
+from PlayersData.labels import alias, correct_alias, Labels
 
 
-def get_label(u, /) -> int:
+def get_label(u, /) -> Union[Labels, UnitTypeId, UpgradeId]:
     if isinstance(u, sc2.unit.Unit):
         u = u.type_id
     _type = correct_alias.get(u, u)
