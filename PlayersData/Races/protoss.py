@@ -1,6 +1,7 @@
 from sc2.bot_ai import BotAI
 from sc2.ids.upgrade_id import UpgradeId
 from sc2.ids.unit_typeid import UnitTypeId
+from sc2.position import Point2
 
 from .interface import EnemyData, AllianceData
 from PlayersData.unit import Unit
@@ -12,9 +13,9 @@ class AllianceProtoss(AllianceData):
     def __init__(self, bot: BotAI):
         super().__init__(bot)
 
-    async def update(self):
-        self.structures = self.bot.structures
-        for unit in self.bot.units:
+    def update(self):
+        self.structures = self._bot.structures
+        for unit in self._bot.units:
             tag = unit.tag
             if tag in self.units:
                 self.units[tag].update(unit)
@@ -72,18 +73,18 @@ class EnemyProtoss(EnemyData):
     def __init__(self, bot: BotAI):
         super().__init__(bot)
 
-    async def update(self):
-        self.structures = self.bot.enemy_structures
-        for unit in self.bot.enemy_units:
+    def update(self):
+        self.structures = self._bot.enemy_structures
+        for unit in self._bot.enemy_units:
             tag = unit.tag
-            if tag in self.units:
-                self.units[tag].update(unit)
-                self.units.refresh(tag)
+            if tag in self._units:
+                self._units[tag].update(unit)
+                self._units.refresh(tag)
             else:
                 unit_type = correct_type(unit)
                 if unit_type in available_labels:
                     self._unit_types[unit_type].add(tag)
-                    self.units[tag] = Unit(unit)
+                    self._units[tag] = Unit(unit)
                     if tag not in self._units_tags:
                         self._units_vector[get_label(unit_type)] += 1
                         if unit_type == UnitTypeId.ARCHON:
@@ -94,7 +95,7 @@ class EnemyProtoss(EnemyData):
                     self._units_tags.add(tag)
 
     def on_unit_destroyed(self, tag: int):
-        unit_type = correct_type(self.units[tag])
+        unit_type = correct_type(self._units[tag])
         self._units_vector[get_label(unit_type)] -= 1
-        self.units.pop(tag)
+        self._units.pop(tag)
         self._unit_types[unit_type].remove(tag)

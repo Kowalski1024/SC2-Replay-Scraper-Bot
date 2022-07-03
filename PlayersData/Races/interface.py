@@ -6,16 +6,19 @@ from sc2.data import Race
 from sc2.bot_ai import BotAI
 from sc2.ids.upgrade_id import UpgradeId
 from sc2.ids.unit_typeid import UnitTypeId
+from sc2.position import Point2
+from sc2.units import Units
 
 from PlayersData.expiring_dict import ExpiringDict
 from PlayersData.unit import Unit
 from PlayersData.utils import correct_type, get_label, townhall_is_expansion
+from PlayersData.cache import property_cache_once_per_frame
 
 
 class PlayerData:
     def __init__(self, bot_ai: BotAI):
-        self.bot = bot_ai
-        self.units: Optional[sc2.units.Units] = None
+        self._bot = bot_ai
+        self._units: Optional[sc2.units.Units] = None
         self.structures: Optional[sc2.units.Units] = None
         self._unit_types: DefaultDict[UnitTypeId, set[int]] = defaultdict(set)
         self._units_vector = [0]*24
@@ -41,7 +44,7 @@ class PlayerData:
             vec[get_label(_type)] += 1
             if (
                     _type in {UnitTypeId.NEXUS, UnitTypeId.COMMANDCENTER, UnitTypeId.HATCHERY}
-                    and townhall_is_expansion(unit, self.bot._expansion_positions_list)
+                    and townhall_is_expansion(unit, self._bot._expansion_positions_list)
             ):
                 vec[0] += 1
         return vec
@@ -58,11 +61,22 @@ class PlayerData:
 class EnemyData(PlayerData):
     def __init__(self, bot_ai: BotAI):
         super().__init__(bot_ai)
-        self.units: ExpiringDict[int, Unit] = ExpiringDict(self.bot, 1000)
+        self._units: ExpiringDict[int, Unit] = ExpiringDict(self._bot, 1000)
         self._units_tags = set()
+
+    @property_cache_once_per_frame
+    def units(self):
+        return Units(self._units.values(), self._bot)
 
 
 class AllianceData(PlayerData):
     def __init__(self, bot_ai: BotAI):
         super().__init__(bot_ai)
         self.units: dict[int, Unit] = {}
+        self.prev_state = None
+
+    @property
+    def state_vector(self):
+        return []
+        # default = self._default_state
+        # return default + [0]*(10-len(default))
