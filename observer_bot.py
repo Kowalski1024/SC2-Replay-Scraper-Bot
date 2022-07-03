@@ -1,15 +1,7 @@
 import csv
-from observer_ai import ObserverAI
-from sc2.units import Unit, Units
+from sc2.observer_ai import ObserverAI
 from collections import Counter
-from sc2.cache import property_cache_once_per_frame
-from constants import building_abilities, train_abilities, abilities_set
-from PlayersData.constants import unit_label, structure_label
 from PlayersData.players_data import PlayersData
-from sc2.data import Race
-from sc2.position import Point2
-from sc2.ids.unit_typeid import UnitTypeId
-from pprint import pprint
 
 
 class ObserverBot(ObserverAI):
