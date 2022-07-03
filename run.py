@@ -12,7 +12,7 @@ from s2protocol import versions
 
 from observer_bot import ObserverBot
 from player_details import PlayerDetails, MetaData
-import time
+
 
 def _metadata(replay_name):
     archive = mpyq.MPQArchive(replay_name)
@@ -61,13 +61,12 @@ def start_replay(replay_name: Union[str, os.PathLike]):
         return
     write_metadata(replay_name, metadata)
     logger.info(f"Observer as player {winner_id}")
-    return run_replay(observer, replay_path=replay_path, observed_id=winner_id, realtime=False)
+    run_replay(observer, replay_path=replay_path, observed_id=winner_id, realtime=False)
 
 
 if __name__ == "__main__":
     replays = ["data/replays/" + file for file in os.listdir("data\\replays") if file.endswith(".SC2Replay")]
     for replay in replays:
-        res = start_replay(replay)
-        break
+        start_replay(replay)
     pass
 

@@ -13,6 +13,7 @@ class Unit(sc2.unit.Unit):
         self.distance_calculation_index = unit.distance_calculation_index
         self.base_build = unit.base_build
         self.game_loop = unit.game_loop
+        self.cache.clear()
 
     def update(self, unit: sc2.unit.Unit):
         self.refresh_unit(unit)

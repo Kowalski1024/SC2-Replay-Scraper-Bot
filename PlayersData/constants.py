@@ -2,7 +2,6 @@ from typing import Dict
 
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.ids.upgrade_id import UpgradeId
-from sc2.data import Race
 
 unit_label: Dict[UnitTypeId, int] = {
     UnitTypeId.PROBE: 0,
@@ -66,12 +65,6 @@ upgrade_label: Dict[UpgradeId, int] = {
 }
 
 available_labels = set(unit_label.keys()) | set(structure_label.keys()) | set(upgrade_label.keys())
-
-state_len: Dict[Race, int] = {
-    Race.Terran: 8,
-    Race.Zerg: 8,
-    Race.Protoss: 6
-}
 
 unit_alias: Dict[UnitTypeId, UnitTypeId] = {
     # Protoss

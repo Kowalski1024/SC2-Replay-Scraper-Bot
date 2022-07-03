@@ -5,8 +5,6 @@ from sc2.ids.upgrade_id import UpgradeId
 from sc2.bot_ai import BotAI
 from sc2.unit import Unit
 from sc2.observer_ai import ObserverAI
-from sc2.position import Point2
-from sc2.ids.unit_typeid import UnitTypeId
 
 from PlayersData.Races.protoss import AllianceProtoss, EnemyProtoss
 from constants import building_abilities, train_abilities, abilities_set
@@ -22,51 +20,21 @@ class PlayersData:
         self.alliance = alliance_race(bot)
         self._prev_abilities = Counter()
 
-    def on_prepare_step(self):
-        self.alliance.update()
-        self.enemy.update()
-
-    def after_step(self):
-        self.alliance.prev_state = self._bot.state
+    async def on_prepare_step(self):
+        await self.alliance.update()
+        await self.enemy.update()
 
     async def on_unit_destroyed(self, tag: int):
-        if tag in self.enemy._units:
+        if tag in self.enemy.units:
             self.enemy.on_unit_destroyed(tag)
         if tag in self.alliance.units:
             self.alliance.on_unit_destroyed(tag)
 
     @property
-    def state_vector(self):
-        def closest_distance_normalized(units):
-            closest_unit = closest_unit_to_main(units)
-            if closest_unit is None:
-                return 1
-            return round(distance_to_main(closest_unit.position) /
-                         distance_to_main(self._bot.enemy_start_locations[0]), 1)
-
-        def closest_unit_to_main(units):
-            if not units:
-                return None
-            return units.closest_to(self._bot.start_location)
-
-        def distance_to_main(target: Point2) -> float:
-            return self._bot.start_location.distance_to_point2(target)
-
-        common = self.alliance.prev_state.common
-        state = [
-            common.minerals, common.vespene, common.food_cap - common.food_used, common.food_used,
-            closest_distance_normalized(
-                self.enemy.units.exclude_type({UnitTypeId.SCV, UnitTypeId.PROBE, UnitTypeId.DRONE})
-            ),
-            closest_distance_normalized(self._bot.enemy_structures)
-        ]
-        return state
-
-    @property_cache_once_per_frame
     def get_learning_data(self):
         alliance = self.alliance.units_vector + self.alliance.structures_vector
         enemy = self.enemy.units_vector + self.enemy.structures_vector
-        return self.state_vector + alliance + enemy
+        return alliance + enemy
 
     @property_cache_once_per_frame
     def all_orders(self) -> Counter:
@@ -90,9 +58,13 @@ class PlayersData:
         return {x: count for x, count in self.new_orders.items() if x in abilities_set}
 
     @property
+    def state_vector(self):
+        pass
+
+    @property
     def action_vector(self):
-        buildings = [0] * 24
-        trains = [0] * 24
+        buildings = [0]*24
+        trains = [0]*24
         orders = self.new_train_orders
         for ability, value in orders.items():
             if ability in building_abilities:
