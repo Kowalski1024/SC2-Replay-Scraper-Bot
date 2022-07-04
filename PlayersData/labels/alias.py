@@ -1,5 +1,5 @@
 from PlayersData.data_structures.two_way_dict import TwoWayDict
-from PlayersData.labels.labels import Labels
+from ..labels import Labels
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.ids.upgrade_id import UpgradeId
 
@@ -24,7 +24,7 @@ alias = TwoWayDict({
     Labels.VOIDRAY: UnitTypeId.VOIDRAY,
     Labels.ORACLE: UnitTypeId.ORACLE,
     Labels.CARRIER: UnitTypeId.CARRIER,
-    Labels.EMPEST: UnitTypeId.TEMPEST,
+    Labels.TEMPEST: UnitTypeId.TEMPEST,
     Labels.MOTHERSHIP: UnitTypeId.MOTHERSHIP,
 
     # Structures
