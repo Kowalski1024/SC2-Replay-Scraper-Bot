@@ -5,10 +5,17 @@ from sc2.unit import Unit
 from sc2.ids.unit_typeid import UnitTypeId
 from sc2.ids.upgrade_id import UpgradeId
 
-from .alias import correct_alias, alias
 
+class Labels(enum.IntEnum):
+    # 0 - 15 claimed for state
+    MINERALS = 0
+    VESPENE = 1
+    FOOD_LEFT = 2
+    FOOD_USED = 3
+    UNIT_DISTANCE = 4
+    STRUCTURE_DISTANCE = 5
+    EXPANSIONS = 6
 
-class ProtossLabels(enum.IntEnum):
     # Units 16 - 35
     PROBE = 16
     ZEALOT = 17
@@ -66,22 +73,9 @@ class ProtossLabels(enum.IntEnum):
     WARPGATERESEARCH = 71
     TEMPESTGROUNDATTACKUPGRADE = 72
 
-
-class Labels(ProtossLabels):
-    # 0 - 15 claimed for state
-    MINERALS = 0
-    VESPENE = 1
-    FOOD_LEFT = 2
-    FOOD_USED = 3
-    UNIT_DISTANCE = 4
-    STRUCTURE_DISTANCE = 5
-    EXPANSIONS = 6
-    # Units 16 - 35
-    # Structures 36 - 55
-    # Upgrades 56 - 79
-
     @staticmethod
     def get_value(u: Union[Unit, UnitTypeId, UpgradeId]) -> int:
+        from .alias import correct_alias, alias
         if isinstance(u, Unit):
             u = u.type_id
         _type = correct_alias.get(u, u)
