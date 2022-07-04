@@ -1,8 +1,17 @@
 import csv
+import json
 
 from sc2.observer_ai import ObserverAI
 
 from PlayersData.players_data import PlayersData
+from PlayersData.labels import Labels, alias
+
+
+with open("settings.json") as f:
+    data = json.load(f)
+
+
+EXCLUDE_ORDERS = {alias[Labels[_id]] for _id in data["exclude_id"]}
 
 
 class ObserverBot(ObserverAI):
@@ -29,7 +38,9 @@ class ObserverBot(ObserverAI):
     async def on_step(self, iteration):
         self.before_step()
         self.iteration = iteration
-        if self.players_data.new_train_orders:
+        orders = self.players_data.new_train_orders
+        if any(order not in EXCLUDE_ORDERS for order, val in orders.items() if val > 0):
+            print(orders)
             self.writer.writerow(self.players_data.train_data)
         self.after_step()
 
