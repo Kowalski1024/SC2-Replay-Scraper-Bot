@@ -49,4 +49,4 @@ train_abilities: dict[AbilityId, UnitTypeId] = {
     AbilityId.NEXUSTRAINMOTHERSHIP_MOTHERSHIP: UnitTypeId.MOTHERSHIP
 }
 
-abilities_set = set(train_abilities.keys()) | set(building_abilities.keys())
+abilities_dict = train_abilities | building_abilities
