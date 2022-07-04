@@ -1,4 +1,11 @@
+from typing import Union
 import enum
+
+from sc2.unit import Unit
+from sc2.ids.unit_typeid import UnitTypeId
+from sc2.ids.upgrade_id import UpgradeId
+
+from .alias import correct_alias, alias
 
 
 class ProtossLabels(enum.IntEnum):
@@ -73,3 +80,9 @@ class Labels(ProtossLabels):
     # Structures 36 - 55
     # Upgrades 56 - 79
 
+    @staticmethod
+    def get_value(u: Union[Unit, UnitTypeId, UpgradeId]) -> int:
+        if isinstance(u, Unit):
+            u = u.type_id
+        _type = correct_alias.get(u, u)
+        return alias[_type].value
