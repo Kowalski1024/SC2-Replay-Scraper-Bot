@@ -2,15 +2,15 @@ from typing import Union
 from collections import Counter
 
 from sc2.bot_ai import BotAI
-from sc2.unit import Unit
 from sc2.observer_ai import ObserverAI
+from sc2.unit import Unit
 from sc2.position import Point2
 from sc2.ids.unit_typeid import UnitTypeId
 
 from PlayersData.Races.protoss import AllianceProtoss, EnemyProtoss
-from constants import building_abilities, train_abilities, abilities_set
-from PlayersData.constants import unit_label, structure_label
+from constants import building_abilities, train_abilities, abilities_dict
 from PlayersData.cache import property_cache_once_per_frame
+from PlayersData.labels import Labels
 
 
 class PlayersData:
@@ -29,13 +29,13 @@ class PlayersData:
         self.alliance.prev_state = self._bot.state
 
     async def on_unit_destroyed(self, tag: int):
-        if tag in self.enemy._units:
+        if self.enemy.has_unit(tag):
             self.enemy.on_unit_destroyed(tag)
-        if tag in self.alliance.units:
+        if self.alliance.has_unit(tag):
             self.alliance.on_unit_destroyed(tag)
 
     @property
-    def state_vector(self):
+    def state_data(self):
         def closest_distance_normalized(units):
             closest_unit = closest_unit_to_main(units)
             if closest_unit is None:
@@ -52,26 +52,39 @@ class PlayersData:
             return self._bot.start_location.distance_to_point2(target)
 
         common = self.alliance.prev_state.common
-        state = [
-            common.minerals, common.vespene, common.food_cap - common.food_used, common.food_used,
-            closest_distance_normalized(
-                self.enemy.units.exclude_type({UnitTypeId.SCV, UnitTypeId.PROBE, UnitTypeId.DRONE})
-            ),
-            closest_distance_normalized(self._bot.enemy_structures)
-        ]
-        return state
+        unit_distance = closest_distance_normalized(
+            self.enemy.units.exclude_type({UnitTypeId.SCV, UnitTypeId.PROBE, UnitTypeId.DRONE})
+        )
+        structure_distance = closest_distance_normalized(self._bot.enemy_structures)
+        return {
+            Labels.MINERALS.value: common.minerals,
+            Labels.VESPENE.value: common.vespene,
+            Labels.FOOD_LEFT.value: common.food_cap - common.food_used,
+            Labels.FOOD_USED.value: common.food_used,
+            Labels.UNIT_DISTANCE.value: unit_distance,
+            Labels.STRUCTURE_DISTANCE.value: structure_distance
+        }
 
     @property_cache_once_per_frame
     def get_learning_data(self):
-        alliance = self.alliance.units_vector + self.alliance.structures_vector
-        enemy = self.enemy.units_vector + self.enemy.structures_vector
-        return self.state_vector + alliance + enemy
+        vec = [0] * (80 + 64)
+
+        alliance = self.alliance.data_dict
+        enemy = self.enemy.data_dict
+        for key, val in (alliance | self.state_data).items():
+            vec[key] = val
+        for key, val in enemy.items():
+            vec[key + 64] = val
+
+        for ability, value in self.creation_orders.items():
+            vec[Labels.get_value(ability)] += value
+        return vec
 
     @property_cache_once_per_frame
     def all_orders(self) -> Counter:
         abilities_amount = Counter()
         unit: Unit
-        for unit in self._bot.units + self._bot.structures:
+        for unit in self._bot.units | self._bot.structures:
             for order in unit.orders:
                 abilities_amount[order.ability.id] += 1
             if not unit.is_ready and not unit.is_structure:
@@ -84,23 +97,23 @@ class PlayersData:
         self._prev_abilities = self.all_orders
         return orders
 
-    @property_cache_once_per_frame
+    @property
+    def creation_orders(self) -> dict:
+        return {abilities_dict[x]: count for x, count in self.all_orders.items() if x in abilities_dict}
+
+    @property
     def new_train_orders(self) -> dict:
-        return {x: count for x, count in self.new_orders.items() if x in abilities_set}
+        return {abilities_dict[x]: count for x, count in self.new_orders.items() if x in abilities_dict}
 
     @property
     def action_vector(self):
-        buildings = [0] * 24
-        trains = [0] * 24
+        vec = [0] * 40
         orders = self.new_train_orders
         for ability, value in orders.items():
-            if ability in building_abilities:
-                buildings[structure_label[building_abilities[ability]]] = value
-            else:
-                trains[unit_label[train_abilities[ability]]] = value
-        return trains, buildings
+            vec[Labels.get_value(ability)-16] = value
+        return vec
 
     @property
     def train_data(self):
         actions = self.action_vector
-        return self.get_learning_data + actions[0] + actions[1]
+        return self.get_learning_data + actions

@@ -7,7 +7,7 @@ from sc2.position import Point2
 
 from .base import EnemyData, AllianceData
 from PlayersData.unit import Unit
-from PlayersData.utils import get_label, correct_type, townhall_is_expansion
+from PlayersData.utils import correct_type, townhall_is_expansion
 from ..labels import alias, Labels
 
 
@@ -18,14 +18,14 @@ class AllianceProtoss(AllianceData):
     def update(self):
         for unit in self._bot.units:
             tag = unit.tag
-            if tag in self.units:
-                self.units[tag].update(unit)
+            if tag in self._units:
+                self._units[tag].update(unit)
             else:
                 unit_type = correct_type(unit)
                 if unit_type in alias:
                     self._unit_types[unit_type].add(tag)
-                    self.units[tag] = Unit(unit)
-                    self._vector_dict[get_label(unit_type)] += 1
+                    self._units[tag] = Unit(unit)
+                    self._data_dict[Labels.get_value(unit_type)] += 1
 
     # TODO: self.state.upgrades
     # def on_upgrade_complete(self, upgrade: UpgradeId):
@@ -65,8 +65,8 @@ class AllianceProtoss(AllianceData):
 
     def on_unit_destroyed(self, tag: int):
         unit_type = correct_type(self._bot._units_previous_map[tag])
-        self._vector_dict[get_label(unit_type)] -= 1
-        self.units.pop(tag)
+        self._data_dict[Labels.get_value(unit_type)] -= 1
+        self._units.pop(tag)
         self._unit_types[unit_type].remove(tag)
 
 
@@ -85,17 +85,18 @@ class EnemyProtoss(EnemyData):
                 if unit_type in alias:
                     self._unit_types[unit_type].add(tag)
                     self._units[tag] = Unit(unit)
-                    if tag not in self._units_tags:
-                        self._vector_dict[get_label(unit_type)] += 1
+                    if tag not in self._seen_units:
+                        self._data_dict[Labels.get_value(unit_type)] += 1
                         # if unit_type == UnitTypeId.ARCHON:
                         #     if self._vector_dict[Labels.HIGHTEMPLAR] >= 2:
                         #         self._vector_dict[Labels.HIGHTEMPLAR] -= 2
                         #     elif self._vector_dict[Labels.DARKTEMPLAR] >= 2:
                         #         self._vector_dict[Labels.DARKTEMPLAR] -= 2
-                    self._units_tags.add(tag)
+            self._seen_units[tag] = unit
 
     def on_unit_destroyed(self, tag: int):
-        unit_type = correct_type(self._bot._units_previous_map[tag])
-        self._vector_dict[get_label(unit_type)] -= 1
+        unit_type = correct_type(self._seen_units[tag])
+        self._data_dict[Labels.get_value(unit_type)] -= 1
         self._units.pop(tag)
         self._unit_types[unit_type].remove(tag)
+        del self._seen_units[tag]
