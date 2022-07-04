@@ -1,9 +1,7 @@
 import enum
 
 
-class Labels(enum.IntEnum):
-    # 0 - 15 claimed for state
-
+class ProtossLabels(enum.IntEnum):
     # Units 16 - 35
     PROBE = 16
     ZEALOT = 17
@@ -42,7 +40,7 @@ class Labels(enum.IntEnum):
     TEMPLARARCHIVE = 49
     DARKSHRINE = 50
 
-    # Upgrades 56 - 75
+    # Upgrades 56 - 79
     GROUNDATTACK = 56
     FLYERATTACK = 57
     GROUNDARMOR = 58
@@ -60,3 +58,18 @@ class Labels(enum.IntEnum):
     DARKTEMPLARBLINKUPGRADE = 70
     WARPGATERESEARCH = 71
     TEMPESTGROUNDATTACKUPGRADE = 72
+
+
+class Labels(ProtossLabels):
+    # 0 - 15 claimed for state
+    MINERALS = 0
+    VESPENE = 1
+    FOOD_LEFT = 2
+    FOOD_USED = 3
+    UNIT_DISTANCE = 4
+    STRUCTURE_DISTANCE = 5
+    EXPANSIONS = 6
+    # Units 16 - 35
+    # Structures 36 - 55
+    # Upgrades 56 - 79
+
