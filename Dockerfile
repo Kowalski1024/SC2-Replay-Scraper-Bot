@@ -1,6 +1,7 @@
-ARG SC2_VERSION=4.10
 
 FROM python:3.9
+
+ARG SC2_VERSION=4.10
 
 USER root
 
@@ -19,13 +20,15 @@ RUN apt-get update \
     tree
 
 # Set working directory to root, this uncompresses StarCraftII below to folder /root/StarCraftII
-WORKDIR /root/
+WORKDIR /root/bot/
 
 # copy everything to the container
 COPY . .
 
 # install dependencies of the app
 RUN pip install -r requirements.txt
+
+WORKDIR /root/Documents/
 
 # Download and uncompress StarCraftII from https://github.com/Blizzard/s2client-proto#linux-packages and remove zip file
 # If file is locally available, use this instead:
@@ -34,16 +37,16 @@ RUN wget --quiet --show-progress --progress=bar:force http://blzdistsc2-a.akamai
     && unzip -q -P iagreetotheeula SC2.$SC2_VERSION.zip \
     && rm SC2.$SC2_VERSION.zip \
     # Create a symlink for the maps directory
-    && ln -s /root/StarCraftII/Maps /root/StarCraftII/maps \
+    && ln -s /root/Documents/StarCraftII/Maps /root/Documents/StarCraftII/maps \
     # Remove the Maps that come with the SC2 client
-    && rm -rf /root/StarCraftII/maps/* \
+    && rm -rf /root/Documents/StarCraftII/maps/* \
     # Remove Battle.net folder
-    && rm -rf /root/StarCraftII/Battle.net/* \
+    && rm -rf /root/Documents/StarCraftII/Battle.net/* \
     # Remove Shaders folder
-    && rm -rf /root/StarCraftII/Versions/Shaders*
+    && rm -rf /root/Documents/StarCraftII/Versions/Shaders*
 
 # Change to maps folder
-WORKDIR /root/StarCraftII/maps/
+WORKDIR /root/Documents/StarCraftII/maps/
 
 # Maps are available here https://github.com/Blizzard/s2client-proto#map-packs and here http://wiki.sc2ai.net/Ladder_Maps
 # Download and uncompress StarCraftII Maps, remove zip file - using "maps" instead of "Maps" as target folder

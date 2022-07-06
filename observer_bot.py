@@ -18,7 +18,7 @@ class ObserverBot(ObserverAI):
     def __init__(self, file_name: str):
         super().__init__()
         self._file_name = file_name
-        self.file = open('data/datasets/'+self._file_name+'.csv', 'a', encoding='UTF8', newline='')
+        self.file = open('data/'+self._file_name+'.csv', 'a', encoding='UTF8', newline='')
         self.writer = csv.writer(self.file)
         self.iteration = 0
         self.players_data = PlayersData(self)
@@ -39,6 +39,8 @@ class ObserverBot(ObserverAI):
         self.before_step()
         self.iteration = iteration
         orders = {key: val for key, val in self.players_data.new_train_orders.items() if key not in EXCLUDE_ORDERS}
+        if orders:
+            print(orders)
         for key, val in orders.items():
             learning_data = self.players_data.get_learning_data
             actions = [0] * 40
