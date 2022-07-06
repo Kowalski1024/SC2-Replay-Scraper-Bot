@@ -7,7 +7,7 @@ from sc2.position import Point2
 
 from .base import EnemyData, AllianceData
 from PlayersData.unit import Unit
-from PlayersData.utils import correct_type, townhall_is_expansion
+from PlayersData.utils import correct_type
 from ..labels import alias, Labels
 
 
