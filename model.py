@@ -4,12 +4,12 @@ from sklearn.ensemble import RandomForestClassifier
 import pickle
 
 datasets = ["data/datasets/" + file for file in os.listdir("data\\datasets")]
-units = [*range(6, 6+19), *range(54, 54+19)]
-structures = [*range(30, 30+16), *range(78, 78+16)]
+units = [*range(16, 16+19), *range(80, 80 + 19)]
+structures = [*range(36, 36+16), *range(100, 100+16)]
 state = list(range(6))
 
-train_units = list(range(102, 102+19))
-train_structures = list(range(126, 126+16))
+train_units = list(range(144, 144+19))
+train_structures = list(range(164, 164+16))
 
 clf = RandomForestClassifier(n_estimators=500, max_depth=10)
 
