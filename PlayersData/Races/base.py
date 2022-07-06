@@ -53,7 +53,7 @@ class PlayerData:
                 structures[Labels.get_value(unit)] = val + 1
             if (
                     unit.type_id in race_townhalls[Race.Random]
-                    and any(exp.distance_to(unit) < 1 for exp in self._bot.expansion_locations_list)
+                    and any(exp.distance_to(unit) < 1 for exp in self._bot._expansion_positions_list)
             ):
                 self._data_dict[Labels.EXPANSIONS.value] += 1
         self._data_dict.update(structures)
