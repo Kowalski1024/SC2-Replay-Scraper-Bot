@@ -36,6 +36,7 @@ def start_replay(replay_name: Union[str, os.PathLike]):
     # Enter replay name here
     # The replay should be either in this folder and you can give it a relative path, or change it to the absolute path
     if platform.system() == "Linux":
+        print(Path.home())
         home_replay_folder = Path.home() / "Documents" / "StarCraft II" / "Replays"
         replay_path = home_replay_folder / replay_name
         if not replay_path.is_file():
@@ -68,5 +69,5 @@ if __name__ == "__main__":
     replays = ["data/replays/" + file for file in os.listdir("data\\replays") if file.endswith(".SC2Replay")]
     for replay in replays:
         res = start_replay(replay)
-    pass
+    print('end')
 
