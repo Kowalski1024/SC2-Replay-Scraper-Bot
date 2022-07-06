@@ -8,7 +8,7 @@ from sc2.position import Point2
 from sc2.ids.unit_typeid import UnitTypeId
 
 from PlayersData.Races.protoss import AllianceProtoss, EnemyProtoss
-from constants import building_abilities, train_abilities, abilities_dict
+from PlayersData.labels.abilities import abilities_dict
 from PlayersData.cache import property_cache_once_per_frame
 from PlayersData.labels import Labels
 
@@ -104,16 +104,3 @@ class PlayersData:
     @property
     def new_train_orders(self) -> dict:
         return {abilities_dict[x]: count for x, count in self.new_orders.items() if x in abilities_dict}
-
-    @property
-    def action_vector(self):
-        vec = [0] * 40
-        orders = self.new_train_orders
-        for ability, value in orders.items():
-            vec[Labels.get_value(ability)-16] = value
-        return vec
-
-    @property
-    def train_data(self):
-        actions = self.action_vector
-        return self.get_learning_data + actions

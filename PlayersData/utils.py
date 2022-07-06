@@ -18,11 +18,3 @@ def get_label(u, /) -> Union[Labels, UnitTypeId, UpgradeId]:
 def correct_type(unit: sc2.unit.Unit):
     _type = unit.type_id
     return correct_alias.get(_type, _type)
-
-
-def townhall_is_expansion(unit: sc2.unit.Unit, expansions: list[Point2]):
-    for exp in expansions:
-        if exp.distance_to(unit) < 1:
-            return True
-    return False
-

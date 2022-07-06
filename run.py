@@ -68,6 +68,5 @@ if __name__ == "__main__":
     replays = ["data/replays/" + file for file in os.listdir("data\\replays") if file.endswith(".SC2Replay")]
     for replay in replays:
         res = start_replay(replay)
-        break
     pass
 

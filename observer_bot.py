@@ -38,10 +38,13 @@ class ObserverBot(ObserverAI):
     async def on_step(self, iteration):
         self.before_step()
         self.iteration = iteration
-        orders = self.players_data.new_train_orders
-        if any(order not in EXCLUDE_ORDERS for order, val in orders.items() if val > 0):
-            print(orders)
-            self.writer.writerow(self.players_data.train_data)
+        orders = {key: val for key, val in self.players_data.new_train_orders.items() if key not in EXCLUDE_ORDERS}
+        for key, val in orders.items():
+            learning_data = self.players_data.get_learning_data
+            actions = [0] * 40
+            actions[Labels.get_value(key) - 16] = 1
+            for _ in range(val):
+                self.writer.writerow(learning_data + actions)
         self.after_step()
 
     def on_end(self, result):

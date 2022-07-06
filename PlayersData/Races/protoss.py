@@ -22,9 +22,9 @@ class AllianceProtoss(AllianceData):
                 self._units[tag].update(unit)
             else:
                 unit_type = correct_type(unit)
+                self._unit_types[unit_type].add(tag)
+                self._units[tag] = Unit(unit)
                 if unit_type in alias:
-                    self._unit_types[unit_type].add(tag)
-                    self._units[tag] = Unit(unit)
                     self._data_dict[Labels.get_value(unit_type)] += 1
 
     # TODO: self.state.upgrades
@@ -65,9 +65,11 @@ class AllianceProtoss(AllianceData):
 
     def on_unit_destroyed(self, tag: int):
         unit_type = correct_type(self._bot._units_previous_map[tag])
-        self._data_dict[Labels.get_value(unit_type)] -= 1
         self._units.pop(tag)
         self._unit_types[unit_type].remove(tag)
+
+        if unit_type in alias:
+            self._data_dict[Labels.get_value(unit_type)] -= 1
 
 
 class EnemyProtoss(EnemyData):
@@ -82,9 +84,9 @@ class EnemyProtoss(EnemyData):
                 self._units.refresh(tag)
             else:
                 unit_type = correct_type(unit)
+                self._units[tag] = Unit(unit)
+                self._unit_types[unit_type].add(tag)
                 if unit_type in alias:
-                    self._unit_types[unit_type].add(tag)
-                    self._units[tag] = Unit(unit)
                     if tag not in self._seen_units:
                         self._data_dict[Labels.get_value(unit_type)] += 1
                         # if unit_type == UnitTypeId.ARCHON:
@@ -96,7 +98,9 @@ class EnemyProtoss(EnemyData):
 
     def on_unit_destroyed(self, tag: int):
         unit_type = correct_type(self._seen_units[tag])
-        self._data_dict[Labels.get_value(unit_type)] -= 1
         self._units.pop(tag)
         self._unit_types[unit_type].remove(tag)
         del self._seen_units[tag]
+
+        if unit_type in alias:
+            self._data_dict[Labels.get_value(unit_type)] -= 1
