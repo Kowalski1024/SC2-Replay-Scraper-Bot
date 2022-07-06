@@ -63,13 +63,13 @@ class Controller(Protocol):
         )
         if platform.system() == "Linux":
             replay_name = Path(replay_path).name
-            home_replay_folder = Path.home() / "Documents" / "StarCraft II" / "Replays"
+            home_replay_folder = Path.home() / "Documents" / "StarCraftII" / "Replays"
             if str(home_replay_folder / replay_name) != replay_path:
                 logger.warning(
                     f"Linux detected, please put your replay in your home directory at {home_replay_folder}. It was detected at {replay_path}"
                 )
                 raise FileNotFoundError
-            replay_path = replay_name
+            # replay_path = replay_name
 
         req = sc_pb.RequestStartReplay(
             replay_path=replay_path, observed_player_id=observed_id, realtime=realtime, options=ifopts
