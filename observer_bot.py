@@ -39,8 +39,8 @@ class ObserverBot(ObserverAI):
         self.before_step()
         self.iteration = iteration
         orders = {key: val for key, val in self.players_data.new_train_orders.items() if key not in EXCLUDE_ORDERS}
+        learning_data = [val for val in self.players_data.get_learning_data.values()]
         for key, val in orders.items():
-            learning_data = self.players_data.get_learning_data
             actions = [0] * 40
             actions[Labels.get_value(key) - 16] = 1
             for _ in range(val):

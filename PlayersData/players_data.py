@@ -67,18 +67,14 @@ class PlayersData:
 
     @property_cache_once_per_frame
     def get_learning_data(self):
-        vec = [0] * (80 + 64)
-
-        alliance = self.alliance.data_dict
+        data = self.alliance.data_dict | self.state_data
         enemy = self.enemy.data_dict
-        for key, val in (alliance | self.state_data).items():
-            vec[key] = val
         for key, val in enemy.items():
-            vec[key + 64] = val
-
+            if key > 15:
+                data[key+100] = val
         for ability, value in self.creation_orders.items():
-            vec[Labels.get_value(ability)] += value
-        return vec
+            data[Labels.get_value(ability)] += value
+        return data
 
     @property_cache_once_per_frame
     def all_orders(self) -> Counter:
