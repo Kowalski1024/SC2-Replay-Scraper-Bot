@@ -19,7 +19,6 @@ RUN apt-get update \
     rename \
     tree
 
-# Set working directory to root, this uncompresses StarCraftII below to folder /root/StarCraftII
 WORKDIR /root/bot/
 
 # copy everything to the container
@@ -53,16 +52,16 @@ WORKDIR /root/Documents/StarCraftII/maps/
 
 # Get ladder maps
 RUN wget --quiet --show-progress --progress=bar:force \
-    http://archive.sc2ai.net/Maps/Season1Maps.zip \
-    http://archive.sc2ai.net/Maps/Season2Maps.zip \
-    http://archive.sc2ai.net/Maps/Season3Maps.zip \
-    http://archive.sc2ai.net/Maps/Season4Maps.zip \
-    http://archive.sc2ai.net/Maps/Season5Maps.zip \
-    http://archive.sc2ai.net/Maps/Season6Maps.zip \
-    http://archive.sc2ai.net/Maps/Season7Maps.zip \
-    http://archive.sc2ai.net/Maps/Season8Maps.zip \
-    http://archive.sc2ai.net/Maps/Season9Maps.zip \
-    http://archive.sc2ai.net/Maps/Season10Maps.zip \
+    https://archive.sc2ai.net/Maps/Season1Maps.zip \
+    https://archive.sc2ai.net/Maps/Season2Maps.zip \
+    https://archive.sc2ai.net/Maps/Season3Maps.zip \
+    https://archive.sc2ai.net/Maps/Season4Maps.zip \
+    https://archive.sc2ai.net/Maps/Season5Maps.zip \
+    https://archive.sc2ai.net/Maps/Season6Maps.zip \
+    https://archive.sc2ai.net/Maps/Season7Maps.zip \
+    https://archive.sc2ai.net/Maps/Season8Maps.zip \
+    https://archive.sc2ai.net/Maps/Season9Maps.zip \
+    https://archive.sc2ai.net/Maps/Season10Maps.zip \
     && unzip -q -o '*.zip' \
     && rm *.zip \
     # Get official blizzard maps
@@ -81,6 +80,10 @@ RUN wget --quiet --show-progress --progress=bar:force \
     && mv Melee/* . \
     && rm Melee.zip \
     && rm -r Melee \
+    # Get Sc2 AI Arena 2022 Season 3
+    && wget --quiet --show-progress --progress=bar:force https://sc2ai.net/wiki/184/plugin/attachments/download/14/ \
+    && unzip -q -o '*.zip' \
+    && rm *.zip \
     # Remove LE suffix from file names
     && rename -v 's/LE.SC2Map/.SC2Map/' *.SC2Map \
     # List all map files
