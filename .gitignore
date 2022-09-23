@@ -1,4 +1,6 @@
 /.idea/
 __pycache__/
+/sc2/
 venv
 data/.
+test.py
