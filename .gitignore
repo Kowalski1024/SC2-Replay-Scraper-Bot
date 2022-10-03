@@ -4,3 +4,7 @@ __pycache__/
 venv
 data/.
 test.py
+
+!/sc2/observer_ai.py
+!/sc2/controller.py
+!/sc2/main.py
