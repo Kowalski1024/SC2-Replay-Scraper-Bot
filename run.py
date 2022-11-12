@@ -1,67 +1,106 @@
 import os
-import csv
-import platform
 import mpyq
+import json
+import argparse
+import platform
 from pathlib import Path
-from typing import Union
-from loguru import logger
-from multiprocessing import Process
 
-from sc2.main import run_replay
+from loguru import logger
+from tqdm import tqdm
+import sc2.main
 from s2protocol import versions
 
 from observer_bot import ObserverBot
-from player_details import PlayerDetails, MetaData
-import time
-
-from sc2.paths import get_user_sc2_install, BASEDIR, PF
 
 
-def _metadata(replay_name):
-    archive = mpyq.MPQArchive(replay_name)
-    contents = archive.read_file('replay.details')
-    header = versions.latest().decode_replay_details(contents)
-    p1 = PlayerDetails(header['m_playerList'][0])
-    p2 = PlayerDetails(header['m_playerList'][1])
-    map_name = header['m_title'].decode('ascii')
-    return {MetaData.Player_1: p1, MetaData.Player_2: p2, MetaData.Map: map_name}
+def progress_bar_linux():
+    def logger_decorator(func):
+        def inner(*args, **kwargs):
+            with tqdm.external_write_mode():
+                func(*args, **kwargs)
+
+        return inner
+
+    logger._log = logger_decorator(logger._log)
 
 
-def write_metadata(replay_name, data):
-    output_file = os.path.basename(replay_name).split('.')[0]
-    p1, p2 = data[MetaData.Player_1], data[MetaData.Player_2]
-    with open('data/' + output_file + '.csv', 'w', encoding='UTF8', newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([*p1.get_info, *p2.get_info, data[MetaData.Map]])
+def read_replay_metadata(replay_path):
+    archive = mpyq.MPQArchive(replay_path)
+    details = archive.read_file('replay.details')
+    game_data = json.loads(archive.read_file('replay.gamemetadata.json'))
+    game_version = int(game_data['DataBuild'])
+    header = versions.build(game_version).decode_replay_details(details)
+
+    return header['m_timeUTC'], game_data
 
 
-def start_replay(replay_name: Union[str, os.PathLike]):
-    # Enter replay name here
-    # The replay should be either in this folder and you can give it a relative path, or change it to the absolute path
-    home_replay_folder = Path.home() / "Documents" / "StarCraftII" / "Replays"
-    replay_path = home_replay_folder / replay_name
-    if not replay_path.is_file():
-        logger.warning(f"You are on linux, please put the replay in directory {home_replay_folder}")
-        raise FileNotFoundError
-    replay_path = str(replay_path)
-    assert os.path.isfile(
-        replay_path
-    ), "Replay not exists"
-    observer = ObserverBot(os.path.basename(replay_name).split('.')[0])
-    metadata = _metadata(replay_path)
-    if metadata[MetaData.Player_1].result == 1:
-        winner_id = 1
-    elif metadata[MetaData.Player_2].result == 1:
-        winner_id = 2
-    else:
-        return
-    write_metadata(replay_name, metadata)
-    logger.info(f"Observer as player {winner_id}")
-    return run_replay(observer, replay_path=replay_path, observed_id=winner_id, realtime=False)
+def run_scraper(args, working_dir):
+    replays_path = Path(args.replays_path)
+    scraper_data_path = args.scraper_data if args.scraper_data else working_dir.joinpath('scraper_data.json')
+    dest_dir_path = args.output if args.output else working_dir.joinpath('datasets')
+    conf_path = Path(args.config) if args.config else None
+
+    replays = os.listdir(replays_path)
+
+    try:
+        with open(scraper_data_path) as file:
+            scraper_data = json.load(file)
+    except FileNotFoundError:
+        scraper_data = {}
+
+    logger.info(f'Starting the Scraper... Replays to check: {len(replays)}')
+    for i, replay in enumerate(replays):
+        replay_path = replays_path.joinpath(str(replay))
+        time_utc, game_data = read_replay_metadata(replay_path)
+
+        winner_id = 0
+        race = 'Unknown'
+        for player in game_data['Players']:
+            if player['Result'] == 'Win':
+                winner_id = player['PlayerID']
+                race = player['AssignedRace']
+
+        if winner_id == 0:
+            logger.info(f'Game {replay} without a winner, skip the replay.')
+            continue
+
+        if time_utc in scraper_data:
+            logger.info(f'Game already {replay} in the scraper data, skip the replay.')
+            continue
+
+        progress_bar = tqdm(
+            total=game_data['Duration'],
+            desc=f'Replay {i + 1}/{len(replays)}...',
+            delay=1, leave=True, ascii=True
+        )
+
+        if platform.system() == "Windows":
+            progress_bar.close()
+
+        dest_dir_path.joinpath(race).mkdir(parents=True, exist_ok=True)
+        dataset_path = dest_dir_path.joinpath(race, f'{time_utc}.csv')
+        observer = ObserverBot(dataset_path=dataset_path, config_path=conf_path, progress_bar=progress_bar)
+        logger.info(f'Starting game {time_utc} as player ID {winner_id}, duration {game_data["Duration"]}')
+        sc2.main.run_replay(ai=observer, replay_path=str(replay_path), observed_id=winner_id, realtime=args.realtime)
+
+        scraper_data[str(time_utc)] = game_data
+        with open(scraper_data_path, 'w') as file:
+            json.dump(scraper_data, file)
 
 
 if __name__ == "__main__":
-    replays = [file for file in os.listdir(Path.home() / "Documents" / "StarCraftII" / "Replays")]
-    for replay in replays:
-        res = start_replay(replay)
-    print('end')
+    # define arguments
+    parser = argparse.ArgumentParser(prog='SC2 Replay Scraper Bot')
+    parser.add_argument('replays_path')
+    parser.add_argument('-sd', '--scraper_data')
+    parser.add_argument('-rt', '--realtime', action='store_true')
+    parser.add_argument('-o', '--output')
+    parser.add_argument('-c', '--config')
+
+    _args = parser.parse_args()
+    _working_dir = Path(__file__).parent
+
+    if platform.system() == "Linux":
+        progress_bar_linux()
+
+    run_scraper(_args, _working_dir)
