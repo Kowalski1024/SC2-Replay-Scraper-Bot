@@ -1,9 +1,11 @@
 from functools import wraps
-from collections.abc import Iterable
+from typing import TypeVar, ParamSpec, Callable
+
+T = TypeVar('T')
+P = ParamSpec('P')
 
 
-# from burnysc2
-def cache_once_per_frame(f):
+def cache_once_per_frame(f: Callable[P, T]) -> Callable[P, T]:
     """
     This decorator caches the return value for one game loop,
     then clears it if it is accessed in a different game loop.
@@ -22,10 +24,11 @@ def cache_once_per_frame(f):
         if should_copy:
             return cache.copy()
         return cache
+
     return inner
 
 
-def property_cache_once_per_frame(f):
+def property_cache_once_per_frame(f: Callable[P, T]) -> T:
     """
     This decorator caches the return value for one game loop,
     then clears it if it is accessed in a different game loop.

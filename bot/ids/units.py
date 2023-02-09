@@ -1,8 +1,15 @@
 from sc2.ids.unit_typeid import UnitTypeId
-from sc2.ids.upgrade_id import UpgradeId
 
 
-UNITS: tuple[UnitTypeId, ...] = (
+CORRECT_ALIAS: dict[UnitTypeId, UnitTypeId] = {
+    # Protoss
+    UnitTypeId.OBSERVERSIEGEMODE: UnitTypeId.OBSERVER,
+    UnitTypeId.WARPPRISMPHASING: UnitTypeId.WARPPRISM,
+    UnitTypeId.WARPGATE: UnitTypeId.GATEWAY
+}
+
+
+PROTOSS_UNITS: tuple[UnitTypeId, ...] = (
     UnitTypeId.PROBE,
     UnitTypeId.ZEALOT,
     UnitTypeId.STALKER,
@@ -26,7 +33,7 @@ UNITS: tuple[UnitTypeId, ...] = (
 )
 
 
-STRUCTURES: tuple[UnitTypeId, ...] = (
+PROTOSS_STRUCTURES: tuple[UnitTypeId, ...] = (
     UnitTypeId.NEXUS,
     UnitTypeId.PYLON,
     UnitTypeId.ASSIMILATOR,
@@ -43,3 +50,6 @@ STRUCTURES: tuple[UnitTypeId, ...] = (
     UnitTypeId.TEMPLARARCHIVE,
     UnitTypeId.DARKSHRINE,
 )
+
+ALL_UNITS: set[UnitTypeId] = {*PROTOSS_UNITS}
+ALL_STRUCTURES: set[UnitTypeId] = {*PROTOSS_STRUCTURES}

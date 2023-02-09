@@ -10,7 +10,7 @@ from tqdm import tqdm
 import sc2.main
 from s2protocol import versions
 
-from observer_bot import ObserverBot
+from bot.observer_bot import ObserverBot
 
 
 def progress_bar_linux():
@@ -32,6 +32,15 @@ def read_replay_metadata(replay_path):
     header = versions.build(game_version).decode_replay_details(details)
 
     return header['m_timeUTC'], game_data
+
+
+'''
+from loguru import logger
+from tqdm import tqdm
+
+logger_format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> [<level>{level: ^12}</level>] <level>{message}</level>"
+logger.configure(handlers=[dict(sink=lambda msg: tqdm.write(msg, end=''), format=logger_format, colorize=True)])
+'''
 
 
 def run_scraper(args, working_dir):
@@ -74,6 +83,7 @@ def run_scraper(args, working_dir):
             delay=1, leave=True, ascii=True
         )
 
+        # tqdm not working well with loguru on Windows
         if platform.system() == "Windows":
             progress_bar.close()
 

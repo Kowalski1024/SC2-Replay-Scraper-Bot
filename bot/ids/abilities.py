@@ -1,8 +1,10 @@
 from sc2.ids.ability_id import AbilityId
 from sc2.ids.unit_typeid import UnitTypeId
 
-building_abilities: dict[AbilityId, UnitTypeId] = {
+
+ABILITIES_MAPPING: dict[AbilityId, UnitTypeId] = {
     # Protoss
+    # Structures
     AbilityId.BUILD_SHIELDBATTERY: UnitTypeId.SHIELDBATTERY,
     AbilityId.PROTOSSBUILD_ASSIMILATOR: UnitTypeId.ASSIMILATOR,
     AbilityId.PROTOSSBUILD_CYBERNETICSCORE: UnitTypeId.CYBERNETICSCORE,
@@ -17,11 +19,9 @@ building_abilities: dict[AbilityId, UnitTypeId] = {
     AbilityId.PROTOSSBUILD_ROBOTICSFACILITY: UnitTypeId.ROBOTICSFACILITY,
     AbilityId.PROTOSSBUILD_STARGATE: UnitTypeId.STARGATE,
     AbilityId.PROTOSSBUILD_TEMPLARARCHIVE: UnitTypeId.TEMPLARARCHIVE,
-    AbilityId.PROTOSSBUILD_TWILIGHTCOUNCIL: UnitTypeId.TWILIGHTCOUNCIL
-}
+    AbilityId.PROTOSSBUILD_TWILIGHTCOUNCIL: UnitTypeId.TWILIGHTCOUNCIL,
 
-train_abilities: dict[AbilityId, UnitTypeId] = {
-    # Protoss
+    # Units
     AbilityId.NEXUSTRAIN_PROBE: UnitTypeId.PROBE,
     AbilityId.GATEWAYTRAIN_ZEALOT: UnitTypeId.ZEALOT,
     AbilityId.WARPGATETRAIN_ZEALOT: UnitTypeId.ZEALOT,
@@ -48,5 +48,3 @@ train_abilities: dict[AbilityId, UnitTypeId] = {
     AbilityId.STARGATETRAIN_TEMPEST: UnitTypeId.TEMPEST,
     AbilityId.NEXUSTRAINMOTHERSHIP_MOTHERSHIP: UnitTypeId.MOTHERSHIP
 }
-
-abilities_dict = train_abilities | building_abilities
