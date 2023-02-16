@@ -8,4 +8,3 @@ class Labels(enum.IntEnum):
     FOOD_USED = 3
     UNIT_DISTANCE = 4
     STRUCTURE_DISTANCE = 5
-    EXPANSIONS = 6

@@ -1,5 +1,4 @@
-
-FROM python:3.9
+FROM python:3.10
 
 ARG SC2_VERSION=4.10
 
@@ -52,16 +51,9 @@ WORKDIR /root/Documents/StarCraftII/maps/
 
 # Get ladder maps
 RUN wget --quiet --show-progress --progress=bar:force \
-    https://archive.sc2ai.net/Maps/Season1Maps.zip \
-    https://archive.sc2ai.net/Maps/Season2Maps.zip \
-    https://archive.sc2ai.net/Maps/Season3Maps.zip \
-    https://archive.sc2ai.net/Maps/Season4Maps.zip \
-    https://archive.sc2ai.net/Maps/Season5Maps.zip \
-    https://archive.sc2ai.net/Maps/Season6Maps.zip \
-    https://archive.sc2ai.net/Maps/Season7Maps.zip \
-    https://archive.sc2ai.net/Maps/Season8Maps.zip \
     https://archive.sc2ai.net/Maps/Season9Maps.zip \
     https://archive.sc2ai.net/Maps/Season10Maps.zip \
+    https://archive.sc2ai.net/Maps/Season11Maps.zip \
     && unzip -q -o '*.zip' \
     && rm *.zip \
     # Get official blizzard maps

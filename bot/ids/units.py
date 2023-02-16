@@ -1,4 +1,5 @@
 from sc2.ids.unit_typeid import UnitTypeId
+from sc2.data import Race
 
 
 CORRECT_ALIAS: dict[UnitTypeId, UnitTypeId] = {
@@ -25,7 +26,6 @@ PROTOSS_UNITS: tuple[UnitTypeId, ...] = (
     UnitTypeId.WARPPRISM,
     UnitTypeId.PHOENIX,
     UnitTypeId.VOIDRAY,
-    UnitTypeId.VOIDRAY,
     UnitTypeId.ORACLE,
     UnitTypeId.CARRIER,
     UnitTypeId.TEMPEST,
@@ -50,6 +50,10 @@ PROTOSS_STRUCTURES: tuple[UnitTypeId, ...] = (
     UnitTypeId.TEMPLARARCHIVE,
     UnitTypeId.DARKSHRINE,
 )
+
+RACE_MAPPING: dict[Race, tuple[UnitTypeId]] = {
+    Race.Protoss: PROTOSS_UNITS + PROTOSS_STRUCTURES
+}
 
 ALL_UNITS: set[UnitTypeId] = {*PROTOSS_UNITS}
 ALL_STRUCTURES: set[UnitTypeId] = {*PROTOSS_STRUCTURES}

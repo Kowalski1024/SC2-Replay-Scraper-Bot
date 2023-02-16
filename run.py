@@ -34,20 +34,10 @@ def read_replay_metadata(replay_path):
     return header['m_timeUTC'], game_data
 
 
-'''
-from loguru import logger
-from tqdm import tqdm
-
-logger_format = "<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> [<level>{level: ^12}</level>] <level>{message}</level>"
-logger.configure(handlers=[dict(sink=lambda msg: tqdm.write(msg, end=''), format=logger_format, colorize=True)])
-'''
-
-
 def run_scraper(args, working_dir):
     replays_path = Path(args.replays_path)
     scraper_data_path = args.scraper_data if args.scraper_data else working_dir.joinpath('scraper_data.json')
     dest_dir_path = args.output if args.output else working_dir.joinpath('datasets')
-    conf_path = Path(args.config) if args.config else None
 
     replays = os.listdir(replays_path)
 
@@ -89,7 +79,7 @@ def run_scraper(args, working_dir):
 
         dest_dir_path.joinpath(race).mkdir(parents=True, exist_ok=True)
         dataset_path = dest_dir_path.joinpath(race, f'{time_utc}.csv')
-        observer = ObserverBot(dataset_path=dataset_path, config_path=conf_path, progress_bar=progress_bar)
+        observer = ObserverBot(dataset_path=dataset_path, progress_bar=progress_bar)
         logger.info(f'Starting game {time_utc} as player ID {winner_id}, duration {game_data["Duration"]}')
         sc2.main.run_replay(ai=observer, replay_path=str(replay_path), observed_id=winner_id, realtime=args.realtime)
 
@@ -105,7 +95,6 @@ if __name__ == "__main__":
     parser.add_argument('-sd', '--scraper_data')
     parser.add_argument('-rt', '--realtime', action='store_true')
     parser.add_argument('-o', '--output')
-    parser.add_argument('-c', '--config')
 
     _args = parser.parse_args()
     _working_dir = Path(__file__).parent
